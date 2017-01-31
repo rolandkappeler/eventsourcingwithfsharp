@@ -32,4 +32,10 @@ let tests =
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
             => StartGame { Players = 3; FirstCard = Digit(Three, Red)}
             =! GameAlreadyStarted
+
+
+        testCase "Playing the same color should be ok" <| fun _ ->
+            [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
+            => PlayCard {Card= Digit(Five, Red)}
+            == CardPlayed {Card= Digit(Five, Red)}
     ]
