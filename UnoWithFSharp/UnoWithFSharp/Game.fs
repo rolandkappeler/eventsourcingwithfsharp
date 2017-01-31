@@ -24,6 +24,7 @@ and GameStarted = {
 type State =
     | InitialState
     | Started of Card
+    | Played of Card
 
 type Result <'A> =
     | Ok of 'A
@@ -35,9 +36,13 @@ and Error =
 let decide (command:Command) (state:State) =
     match state, command with
     | InitialState, StartGame game -> Ok [ GameStarted { Players = game.Players; FirstCard = game.FirstCard } ]
-    | Started c, PlayCard card -> Ok [ CardPlayed card]
+    | Started c, PlayCard card -> 
+        if colorAreTheSame then
+            Ok [ CardPlayed card]
+        else Failure "NO!"
     | Started _, StartGame _ -> Failure GameAlreadyStarted
 
 let evolve (state:State) (event:Event) : State =
     match event with
     | GameStarted e -> Started  e.FirstCard
+    | CardPlayed c -> Played c
