@@ -31,4 +31,5 @@ let decide (command:Command) (state:State) =
     | Started, StartGame _ -> Failure "Game already started"
 
 let evolve (state:State) (event:Event) : State =
-    state
+    match event with
+    | GameStarted e -> Started

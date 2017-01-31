@@ -10,7 +10,7 @@ let tests =
     testList "samples"  [
         testCase "1 should be 1" <| fun _ ->
             Expect.equal 1 1 ""
-        testCase "universe exists" <| fun _ ->
+        testCase "Game should start" <| fun _ ->
             let result =
                 Game.decide 
                     (StartGame { Players = 3; FirstCard = Digit(Three, Red)}) 
@@ -20,13 +20,15 @@ let tests =
                 result
                 "Game should be started"        
                 
-        testCase "universe exists" <| fun _ ->
+        testCase "Cannot start game twice" <| fun _ ->
+            let firstGame = GameStarted { Players = 2; FirstCard = Digit(Three, Red)}
+            let state = evolve InitialState firstGame 
             let result =
                 Game.decide 
                     (StartGame { Players = 3; FirstCard = Digit(Three, Red)}) 
-                    InitialState
+                    state
             Expect.equal 
-                (Ok [ GameStarted { Players = 3; FirstCard = Digit(Three, Red)} ] )
+                (Failure "Game already started" )
                 result
                 "Game should be started"
     ]
