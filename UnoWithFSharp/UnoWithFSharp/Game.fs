@@ -15,6 +15,7 @@ and StartGame = {
 type Event = 
     | GameStarted of GameStarted
     | CardPlayed of Card
+    | WrongCardPlayed
 
 and GameStarted = {
     Players : int
@@ -49,7 +50,7 @@ let decide (command:Command) (state:State) =
     | Started topCard, PlayCard card -> 
         match topCard, card with
         | SameColor | SameValue -> Ok [ CardPlayed card]
-        | _ -> Failure CannotPlayThisCardNow
+        | _ -> Ok [ WrongCardPlayed ]
     | Started _, StartGame _ -> Failure GameAlreadyStarted
 
 let evolve (state:State) (event:Event) : State =

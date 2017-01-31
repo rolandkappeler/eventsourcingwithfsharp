@@ -38,4 +38,16 @@ let tests =
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
             => PlayCard (Digit(Three, Red))
             == [CardPlayed (Digit(Three, Red))]
+                        
+        testCase "Playing the wrong color but the same digit should be ok" <| fun _ ->
+            [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
+            => PlayCard (Digit(Three, Blue))
+            == [CardPlayed (Digit(Three, Blue))]
+
+        testCase "Playing the wrong color and different digit should be punished" <| fun _ ->
+            [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
+            => PlayCard (Digit(Two, Blue))
+            == [WrongCardPlayed]
+
+
     ]
