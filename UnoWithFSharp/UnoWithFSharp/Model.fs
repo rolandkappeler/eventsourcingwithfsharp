@@ -1,4 +1,4 @@
-[<AutoOpen>]
+//[<AutoOpen>]
 module Model
 
 type Color = | Red | Green | Blue | Yellow
