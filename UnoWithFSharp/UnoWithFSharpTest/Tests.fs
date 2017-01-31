@@ -3,6 +3,17 @@
 open Game
 open Expecto
 
+let (=>) events command= 
+    events
+    |> List.fold evolve InitialState
+    |> decide command
+
+let (==) result expected = 
+    Expect.equal result (Ok expected) "should be equal to expected ok"
+
+let (=!) result expected = 
+    Expect.equal result (Failure expected) "should be equal to expected error"
+
 
 
 [<Tests>]
