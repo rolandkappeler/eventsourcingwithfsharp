@@ -1,14 +1,34 @@
-﻿module Game
+﻿[<AutoOpen>]
+module Game
 
-type Command = | DoSomething
+open Model
 
-type Event = | SomeThingHappened
+type Command = | StartGame of StartGame
 
-type State = | InitialState
+and StartGame = {
+    Players: int
+    FirstCard : Card
+}
 
-let decide command state = []
-//    match command with
-//    | DoSomething -> seq [ SomeThingHappened ]
+type Event = | GameStarted of GameStarted
+
+and GameStarted = {
+    Players : int
+    FirstCard : Card
+}
+
+type State =
+    | InitialState
+    | Started
+
+type Result <'A, 'B> =
+    | Ok of 'A
+    | Failure of 'B
+
+let decide (command:Command) (state:State) =
+    match state, command with
+    | InitialState, StartGame game -> Ok [ GameStarted { Players = game.Players; FirstCard = game.FirstCard } ]
+    | Started, StartGame _ -> Failure "Game already started"
 
 let evolve (state:State) (event:Event) : State =
     state
