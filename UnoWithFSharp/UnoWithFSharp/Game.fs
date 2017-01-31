@@ -21,14 +21,16 @@ type State =
     | InitialState
     | Started
 
-type Result <'A, 'B> =
+type Result <'A> =
     | Ok of 'A
-    | Failure of 'B
+    | Failure of Error
+and Error = 
+    | GameAlreadyStarted
 
 let decide (command:Command) (state:State) =
     match state, command with
     | InitialState, StartGame game -> Ok [ GameStarted { Players = game.Players; FirstCard = game.FirstCard } ]
-    | Started, StartGame _ -> Failure "Game already started"
+    | Started, StartGame _ -> Failure GameAlreadyStarted
 
 let evolve (state:State) (event:Event) : State =
     match event with
