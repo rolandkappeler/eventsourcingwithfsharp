@@ -36,6 +36,6 @@ let tests =
 
         testCase "Playing the same color should be ok" <| fun _ ->
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
-            => PlayCard {Card= Digit(Five, Red)}
-            == CardPlayed {Card= Digit(Five, Red)}
+            => PlayCard {Digit(Five, Red)}
+            == CardPlayed {Digit(Five, Red)}
     ]

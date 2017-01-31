@@ -30,11 +30,16 @@ type Result <'A> =
     | Failure of Error
 and Error = 
     | GameAlreadyStarted
+    | CannotPlayThisCardNow
 
 let decide (command:Command) (state:State) =
     match state, command with
     | InitialState, StartGame game -> Ok [ GameStarted { Players = game.Players; FirstCard = game.FirstCard } ]
-    | Started, PlayCard card -> 
+    | Started currentCard, PlayCard card -> 
+        if (snd currentCard) = (snd card) then
+            Ok [CardPlayed card]
+        else
+            Failure CannotPlayThisCardNow
     | Started, StartGame _ -> Failure GameAlreadyStarted
 
 let evolve (state:State) (event:Event) : State =
