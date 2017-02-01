@@ -42,12 +42,12 @@ module EventStore =
             
             let events =
                 slice.Events
-                |> Array.map (fun event -> 
+                |> Array.toList
+                |> List.collect (fun event -> 
                     let data = System.Text.Encoding.UTF8.GetString(event.Event.Data)                    
                     let eventType = event.Event.EventType
                     Serialisation.GameEvents.deserialize(eventType, data)
                 )
-                |> Array.toList
 
             if slice.IsEndOfStream then
                 return Done(events, slice.LastEventNumber)
