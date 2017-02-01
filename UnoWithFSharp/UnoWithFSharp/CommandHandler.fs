@@ -25,7 +25,7 @@ let handler (read:Read<Event>) (write) (stream:string) (cmd:Command) =
         let! game, latestVersion = load InitialState 0
         match decide cmd game with
         | Ok newEvents -> 
-            do! write stream newEvents latestVersion
+            do! write stream latestVersion newEvents 
             return Ok()
         | Failure error -> return Failure error
     }
@@ -53,4 +53,23 @@ module EventStore =
                 return Done(events, slice.LastEventNumber)
             else
                 return Continue(events, slice.NextEventNumber)
+        }
+
+    let append (store:IEventStoreConnection) stream expectedVersion events =
+        async {
+            let eventData =
+                events
+                    |> List.map(fun event -> 
+                        let eventType, data = Serialisation.GameEvents.serialize event
+                        EventData(
+                            System.Guid.NewGuid(),
+                            eventType,
+                            true,
+                            System.Text.Encoding.UTF8.GetBytes(data),
+                            null))
+
+            let! result = 
+                store.AppendToStreamAsync(stream, expectedVersion, eventData)
+                |> Async.AwaitTask
+            return()
         }
