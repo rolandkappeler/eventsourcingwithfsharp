@@ -2,6 +2,9 @@
 
 open Game
 open EventStore.ClientAPI
+open EventStore
+open EventStore.ClientAPI.SystemData
+open System
 
 type Slice<'t> =
     | Done of 't list * int
@@ -73,3 +76,41 @@ module EventStore =
                 |> Async.AwaitTask
             return()
         }
+
+
+type Agent<'t> = MailboxProcessor<'t>
+
+
+let game stream read append = 
+    Agent.Start(fun mailbox-> 
+     
+        let rec loop state version = 
+            async{
+                let! command= mailbox.Receive()
+                let result = decide command state
+                let newState = match result with
+                | Ok events ->  
+                    events
+                    |> List.fold evolve state                
+                | _ -> state
+
+
+                
+ 
+               // newVersion = append
+                // compute new state
+                return! loop newState
+
+            }
+        async {
+            let! state,version = read stream InitialState 0
+            return! loop state version
+        }
+     )
+
+
+
+
+
+let game1 = game "Game-1" read append
+game1.Post (StartGame {Players=5; FirstCard=Digit(Five,Red)})
