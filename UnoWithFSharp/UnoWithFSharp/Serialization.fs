@@ -157,7 +157,7 @@ type GameId = GameId of int
 module GameEvents = 
     let serialize event = 
             match event with
-            | CardPlayed e -> "CardPlayed", serialize e
+            | CardPlayed e -> "CardPlayed", serialize e 
             | GameStarted e -> "GameStarted", serialize e
             | WrongCardPlayed e -> "WrongCardPlayed", serialize e
             

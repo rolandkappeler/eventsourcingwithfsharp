@@ -14,13 +14,17 @@ and StartGame = {
 
 type Event = 
     | GameStarted of GameStarted
-    | CardPlayed of Card * int
-    | WrongCardPlayed
+    | CardPlayed of CardPlayed
+    | WrongCardPlayed of Card
     | PlayerDidNotWaitForHisTurn
 
 and GameStarted = {
     Players : int
     FirstCard : Card
+}
+and CardPlayed = {
+    Card : Card
+    Player : int
 }
 
 type State =
@@ -53,13 +57,13 @@ let decide (command:Command) (state:State) =
     | InitialState, StartGame game -> Ok [ GameStarted { Players = game.Players; FirstCard = game.FirstCard } ]
     | Played (topCard, lastPlayer), PlayCard (card,player) -> 
         match (topCard, player), (card, player) with
-        | (SameColor | SameValue) & NextPlayer -> Ok [ CardPlayed (card,player) ]
+        | (SameColor | SameValue) & NextPlayer -> Ok [ CardPlayed {Card = card; Player = player} ]
 
-        | _ -> Ok [ WrongCardPlayed ]
+        | _ -> Ok [ WrongCardPlayed card ]
     | Played _, StartGame _ -> Failure GameAlreadyStarted
 
 
 let evolve (state:State) (event:Event) : State =
     match event with
     | GameStarted e -> Played  (e.FirstCard, 1)
-    | CardPlayed (c, p) -> Played (c,p)
+    | CardPlayed card -> Played (card.Card, card.Player)
