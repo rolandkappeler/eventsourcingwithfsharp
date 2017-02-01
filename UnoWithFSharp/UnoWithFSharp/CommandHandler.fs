@@ -11,7 +11,7 @@ type Slice<'t> =
     | Continue of 't list * int
 
 type Read<'t> = string -> int -> Slice<'t> Async
-(*
+
 let handler (read:Read<Event>) (write) (stream:string) (cmd:Command) =
     let rec load state version =
         async {
@@ -28,14 +28,13 @@ let handler (read:Read<Event>) (write) (stream:string) (cmd:Command) =
         let! game, latestVersion = load InitialState 0
         match decide cmd game with
         | Ok newEvents -> 
-            do! write stream latestVersion newEvents 
-            return Ok()
+            let! nextExpectedVersion = write stream latestVersion newEvents 
+            return Ok(nextExpectedVersion)
         | Failure error -> return Failure error
-    }*)
+    }
 
 
-//let handler (read:Read<Event>) (write) (stream:string) (cmd:Command) =
-let rec load state version =
+let rec load read state version stream =
     async {
         let! slice = read stream version
         match slice with
@@ -44,7 +43,7 @@ let rec load state version =
             return finalState, finalVersionNumber            
         | Continue (events, versionNumber) ->
             let intermediateState = events |> List.fold evolve state
-            return! load intermediateState versionNumber
+            return! load read intermediateState versionNumber stream
     }
 
 
@@ -96,39 +95,26 @@ module EventStore =
 type Agent<'t> = MailboxProcessor<'t>
 
 
-let game stream c = 
+let game read append stream = 
     Agent.Start(fun mailbox-> 
      
         let rec loop state version = 
             async{
-                let! command= mailbox.Receive()
+                let! command, reply = mailbox.Receive()
                 let result = decide command state
                 match result with
                 | Ok events ->  
                     let newState = events
                                    |> List.fold evolve state 
-                    let! nextExpectedVersion = EventStore.append c stream version events
+                    let! nextExpectedVersion = append stream version events
+                    reply (Ok())
                     return! loop newState nextExpectedVersion   
-                | _ -> return! loop state version   
+                | Failure e -> 
+                    reply (Failure e)
+                    return! loop state version   
             }
         async {
-            let! state,version = EventStore.load stream InitialState 0
+            let! state,version = load read InitialState 0 stream
             return! loop state version
         }
      )
-
-
-async {
-    let settings =
-        ConnectionSettings
-            .Create()
-            .SetDefaultUserCredentials(UserCredentials("admin", "changeit"))         
-            .Build()
-
-    let store = EventStore.ClientAPI.EventStoreConnection.Create(settings, Uri "tcp://localhost:1113")
-    do! store.ConnectAsync() |> Async.AwaitTask
-    
-
-    let game1 = game "Game-1" store
-    game1.Post (StartGame {Players=5; FirstCard=Digit(Five,Red)})
-} |> ignore
