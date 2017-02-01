@@ -6,19 +6,25 @@ type Slice<'t> =
     | Done of 't list * int
     | Continue of 't list * int
 
-type Read<'t> = string -> int -> Slice<'t>
+type Read<'t> = string -> int -> Slice<'t> Async
 
-let handler (read:Read<Event>) (stream:string) (cmd:Command) =
+let handler (read:Read<Event>) (write) (stream:string) (cmd:Command) =
     let rec load state version =
         async {
             let! slice = read stream version
             match slice with
             | Done (events, finalVersionNumber) -> 
                 let finalState = events |> List.fold evolve state
-                finalState, finalVersionNumber            
+                return finalState, finalVersionNumber            
             | Continue (events, versionNumber) ->
                 let intermediateState = events |> List.fold evolve state
-                load intermediateState versionNumber
+                return! load intermediateState versionNumber
         }
-    let state, version = load InitialState 0
-    let newEvents = decide cmd state
+    async {
+        let! game, latestVersion = load InitialState 0
+        match decide cmd game with
+        | Ok newEvents -> 
+            do! write stream newEvents latestVersion
+            return Ok()
+        | Failure error -> return Failure error
+    }

@@ -49,8 +49,8 @@
     <None Include="App.config" />
     <Compile Include="Model.fs" />
     <Compile Include="Game.fs" />
-    <Compile Include="Program.fs" />
     <Compile Include="CommandHandler.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Choose>
