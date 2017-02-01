@@ -3,6 +3,7 @@ open Game
 open EventStore
 open EventStore.ClientAPI
 open EventStore.ClientAPI.SystemData
+open System
 
 [<EntryPoint>]
 let main argv = 
@@ -11,10 +12,10 @@ let main argv =
         let settings =
             ConnectionSettings
                 .Create()
-                .SetDefaultUserCredentials(UserCredentials("admin", "changeit"))
+                .SetDefaultUserCredentials(UserCredentials("admin", "changeit"))         
                 .Build()
 
-        let store = EventStore.ClientAPI.EventStoreConnection.Create(settings, "tcp://localhost:1113")
+        let store = EventStore.ClientAPI.EventStoreConnection.Create(settings, Uri "tcp://localhost:1113")
         do! store.ConnectAsync() |> Async.AwaitTask
     
         let read = EventStore.read store
