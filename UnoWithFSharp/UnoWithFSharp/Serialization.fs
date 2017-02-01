@@ -116,9 +116,9 @@ let serializer =
     JsonSerializer.Create(
         JsonSerializerSettings(
             Converters = [|
-                SingleCaseConverter()
+    //            SingleCaseConverter()
                 FSharpListConverter()
-//                UnionConverter()
+                UnionConverter()
             |]
         ))
 
