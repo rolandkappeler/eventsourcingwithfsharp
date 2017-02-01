@@ -118,7 +118,7 @@ let serializer =
             Converters = [|
                 SingleCaseConverter()
                 FSharpListConverter()
-                UnionConverter()
+//                UnionConverter()
             |]
         ))
 

@@ -7,3 +7,4 @@ type Digit = | Zero | One | Two | Three | Four | Five | Six | Seven | Eight | Ni
 
 type Card = 
     | Digit of Digit * Color
+    | SomethingElse of int
