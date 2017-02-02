@@ -99,7 +99,7 @@ let game read append stream =
     Agent.Start(fun mailbox-> 
      
         let rec loop state version = 
-            async{
+            async {
                 let! command, reply = mailbox.Receive()
                 let result = decide command state
                 match result with

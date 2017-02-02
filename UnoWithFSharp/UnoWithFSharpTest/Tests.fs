@@ -37,27 +37,27 @@ let tests =
         testCase "Playing the same color should be ok" <| fun _ ->
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
             => PlayCard (Digit(Three, Red),1)
-            == [CardPlayed (Digit(Three, Red),1)]
+            == [CardPlayed {Card=Digit(Three, Red);Player=1}]
                         
         testCase "Playing the wrong color but the same digit should be ok" <| fun _ ->
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
             => PlayCard (Digit(Three, Blue),1)
-            == [CardPlayed (Digit(Three, Blue),1)]
+            == [CardPlayed {Card=Digit(Three, Blue);Player=1}]
 
         testCase "Playing the wrong color and different digit should be punished" <| fun _ ->
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)}]
             => PlayCard (Digit(Two, Blue),1)
-            == [WrongCardPlayed]
+            == [WrongCardPlayed(Digit(Three, Blue))]
             
         testCase "Player playing at his turn" <| fun _ ->
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)};
-             CardPlayed (Digit(Three, Blue),1)]
+             CardPlayed {Card=Digit(Three, Blue);Player=1}]
             => PlayCard (Digit(Two, Blue),2)
-            ==  [CardPlayed (Digit(Two, Blue),2)]
+            ==  [CardPlayed{Card=Digit(Two,Blue);Player=2}]
 
         testCase "Player playing not at his turn should be punished" <| fun _ ->
             [GameStarted { Players = 2; FirstCard = Digit(Three, Red)};
-             CardPlayed (Digit(Three, Blue),1)]
+             CardPlayed {Card=Digit(Three, Blue);Player=1}]
             => PlayCard (Digit(Two, Blue),1)
             == [PlayerDidNotWaitForHisTurn]
 
